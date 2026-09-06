@@ -7,6 +7,8 @@ interface ProgressRingProps {
   stroke?: number;
   children?: ReactNode;
   className?: string;
+  /** Gentle scale/glow pulse, used for the last seconds of a countdown. */
+  pulsing?: boolean;
 }
 
 /**
@@ -14,14 +16,18 @@ interface ProgressRingProps {
  * the kit's tokens: the arc uses the raw accent hex (`--cladd-theme`) of the nearest `cladd-color-*` region and the
  * track uses the outline color, so it tracks theme and accent changes for free.
  */
-export function ProgressRing({ progress, size = 264, stroke = 14, children, className = '' }: ProgressRingProps) {
+export function ProgressRing({ progress, size = 264, stroke = 14, children, className = '', pulsing = false }: ProgressRingProps) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const clamped = Math.min(1, Math.max(0, Number.isFinite(progress) ? progress : 0));
   const offset = c * (1 - clamped);
 
   return (
-    <div className={`relative shrink-0 ${className}`} style={{ width: size, height: size }}>
+    <div
+      data-pulsing={pulsing || undefined}
+      className={`relative shrink-0 ${pulsing ? 'animate-pulse-ring motion-reduce:animate-none' : ''} ${className}`}
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-cladd-outline)" strokeWidth={stroke} />
         <circle

@@ -15,7 +15,7 @@ export function WorkoutsScreen({ workouts, prepSec, onStart, onEdit, onNew }: Wo
   const accent = useAccentColor();
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-3">
+      <header className="flex items-center justify-between gap-3 animate-fade-up motion-reduce:animate-none">
         <h1 className="text-2xl font-semibold tracking-tight">Workouts</h1>
         <Button size="md" rounded onClick={onNew}>
           <PlusIcon className="size-4" />
@@ -24,7 +24,7 @@ export function WorkoutsScreen({ workouts, prepSec, onStart, onEdit, onNew }: Wo
       </header>
 
       {workouts.length === 0 ? (
-        <Surface className="rounded-cladd-popover" contentClassName="flex flex-col items-center gap-3 p-6 text-center">
+        <Surface className="rounded-cladd-popover animate-fade-up motion-reduce:animate-none" contentClassName="flex flex-col items-center gap-3 p-6 text-center">
           <DumbbellIcon className="size-8 text-cladd-fg-softer" />
           <div className="text-cladd-md font-semibold">No workouts yet</div>
           <div className="text-cladd-sm text-cladd-fg-soft">Build one with your exercises, sets, reps and rest times.</div>
@@ -34,7 +34,7 @@ export function WorkoutsScreen({ workouts, prepSec, onStart, onEdit, onNew }: Wo
         </Surface>
       ) : (
         <List className="flex flex-col gap-2">
-          {workouts.map((w) => {
+          {workouts.map((w, i) => {
             const sets = totalSets(w);
             const runnable = w.exercises.length > 0;
             return (
@@ -46,7 +46,8 @@ export function WorkoutsScreen({ workouts, prepSec, onStart, onEdit, onNew }: Wo
                 size="xl"
                 variant="gradient"
                 outline
-                className="w-full"
+                className="w-full animate-fade-up motion-reduce:animate-none"
+                style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
                 onClick={() => onEdit(w.id)}
                 onKeyDown={(e: React.KeyboardEvent) => {
                   if (e.key === 'Enter' || e.key === ' ') {

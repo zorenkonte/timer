@@ -80,15 +80,16 @@ export function WorkoutEditorScreen({ initial, isNew, onSave, onDelete, onBack }
               </div>
             )}
             {draft.exercises.map((ex, i) => (
-              <ExerciseEditorCard
-                key={ex.id}
-                exercise={ex}
-                index={i}
-                count={draft.exercises.length}
-                onChange={(next) => updateExercise(ex.id, next)}
-                onMove={(delta) => moveExercise(i, delta)}
-                onRemove={() => removeExercise(ex.id)}
-              />
+              <div key={ex.id} className="animate-fade-up motion-reduce:animate-none" style={{ animationDelay: `${Math.min(i, 6) * 40}ms` }}>
+                <ExerciseEditorCard
+                  exercise={ex}
+                  index={i}
+                  count={draft.exercises.length}
+                  onChange={(next) => updateExercise(ex.id, next)}
+                  onMove={(delta) => moveExercise(i, delta)}
+                  onRemove={() => removeExercise(ex.id)}
+                />
+              </div>
             ))}
             <Button size="lg" rounded variant="gradient" onClick={addExercise}>
               <PlusIcon className="size-4" />

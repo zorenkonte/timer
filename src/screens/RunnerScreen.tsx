@@ -195,14 +195,14 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
     const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
     return (
       <div className="flex h-full flex-col items-center justify-center gap-6 px-6 pt-safe-6 pb-safe-6 text-center">
-        <Surface color="green" variant="gradient-fill" className="rounded-full" contentClassName="flex size-24 items-center justify-center">
+        <Surface color="green" variant="gradient-fill" className="rounded-full animate-check-in motion-reduce:animate-none" contentClassName="flex size-24 items-center justify-center">
           <CheckIcon className="size-12" />
         </Surface>
-        <div>
+        <div className="animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '150ms' }}>
           <h1 className="text-3xl font-semibold tracking-tight">Workout complete</h1>
           <p className="mt-2 text-cladd-md text-cladd-fg-soft">{workout.name}</p>
         </div>
-        <Surface className="w-full rounded-cladd-popover" contentClassName="grid grid-cols-2 divide-x divide-cladd-outline p-4">
+        <Surface className="w-full rounded-cladd-popover animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '260ms' }} contentClassName="grid grid-cols-2 divide-x divide-cladd-outline p-4">
           <div>
             <div className="text-3xl font-semibold tabular-nums">{setsTotal}</div>
             <div className="text-cladd-xs text-cladd-fg-soft uppercase">sets</div>
@@ -212,7 +212,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
             <div className="text-cladd-xs text-cladd-fg-soft uppercase">duration</div>
           </div>
         </Surface>
-        <Button size="2xl" rounded variant="gradient-fill" color="green" className="w-full" onClick={onExit}>
+        <Button size="2xl" rounded variant="gradient-fill" color="green" className="w-full animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '360ms' }} onClick={onExit}>
           Done
         </Button>
       </div>
@@ -234,16 +234,23 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
         <div className="size-10" />
       </header>
 
-      <div className="mt-2 h-1 overflow-hidden rounded-full bg-cladd-surface-cut">
-        <div className="h-full rounded-full bg-cladd-primary transition-[width] duration-300" style={{ width: `${overall * 100}%` }} />
+      <div className={`cladd-color-${settings.accent} mt-2 h-1 overflow-hidden rounded-full bg-cladd-surface-cut`}>
+        <div
+          className="h-full rounded-full transition-[width] duration-500 ease-out animate-shimmer motion-reduce:animate-none"
+          style={{
+            width: `${overall * 100}%`,
+            backgroundImage: 'linear-gradient(90deg, var(--cladd-theme), color-mix(in oklab, var(--cladd-theme) 55%, white), var(--cladd-theme))',
+            backgroundSize: '200% 100%',
+          }}
+        />
       </div>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-5 py-4">
-        <Chip size="md" rounded color={phaseColor} variant="gradient-fill" className="uppercase tracking-wider">
+        <Chip key={phaseLabel} size="md" rounded color={phaseColor} variant="gradient-fill" className="uppercase tracking-wider animate-pop motion-reduce:animate-none">
           {phaseLabel}
         </Chip>
 
-        <div className="text-center">
+        <div key={stepIdx} className="text-center animate-fade-up motion-reduce:animate-none">
           <h1 className="text-2xl font-semibold tracking-tight">{step?.kind === 'prep' ? workout.exercises[0]?.name : exercise?.name}</h1>
           {step && step.kind !== 'prep' && exercise && (
             <p className="mt-1 text-cladd-md text-cladd-fg-soft">
@@ -256,15 +263,15 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
         </div>
 
         <Surface variant="transparent" color={phaseColor} wrapContent={false}>
-          <ProgressRing progress={ringProgress}>
+          <ProgressRing progress={ringProgress} pulsing={countdown.running && secLeft <= 3 && secLeft >= 1}>
             {timed ? (
               <>
                 <TimeDisplay ms={countdown.remainingMs} />
-                {!countdown.running && countdown.active && <div className="mt-2 text-cladd-sm font-medium text-cladd-fg-soft uppercase">Paused</div>}
+                {!countdown.running && countdown.active && <div className="mt-2 text-cladd-sm font-medium text-cladd-fg-soft uppercase animate-pulse">Paused</div>}
               </>
             ) : (
               <>
-                <div className="text-7xl leading-none font-semibold tracking-tight tabular-nums">{exercise?.reps}</div>
+                <div key={stepIdx} className="text-7xl leading-none font-semibold tracking-tight tabular-nums animate-pop motion-reduce:animate-none">{exercise?.reps}</div>
                 <div className="mt-2 text-cladd-md text-cladd-fg-soft">reps</div>
               </>
             )}
@@ -272,7 +279,16 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
         </Surface>
 
         {!timed && (
-          <Button size="2xl" rounded variant="gradient-fill" color={settings.accent} className="w-full max-w-xs" onClick={completeSet}>
+          <Button
+            key={stepIdx}
+            size="2xl"
+            rounded
+            variant="gradient-fill"
+            color={settings.accent}
+            className="w-full max-w-xs animate-fade-up motion-reduce:animate-none"
+            style={{ animationDelay: '80ms' }}
+            onClick={completeSet}
+          >
             <CheckIcon className="size-5" />
             Set done
           </Button>

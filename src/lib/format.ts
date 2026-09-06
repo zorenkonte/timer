@@ -60,3 +60,23 @@ export function estimateWorkoutSec(workout: Workout, prepSec = 0): number {
 export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
+
+const pad2 = (n: number) => n.toString().padStart(2, '0');
+
+/** Local calendar day key, e.g. "2026-09-06". */
+export function dayKey(ts: number | Date): string {
+  const d = ts instanceof Date ? ts : new Date(ts);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+export function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+export function addDays(d: Date, days: number): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+}
+
+export function formatDayLong(d: Date): string {
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}

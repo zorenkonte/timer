@@ -34,11 +34,11 @@ function Swatch({ color }: { color: Color }) {
 export function SettingsScreen({ settings, onChange }: SettingsScreenProps) {
   return (
     <div className="flex flex-col gap-4">
-      <header>
+      <header className="animate-fade-up motion-reduce:animate-none">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
       </header>
 
-      <Surface className="rounded-cladd-popover" contentClassName="flex flex-col divide-y divide-cladd-outline">
+      <Surface className="rounded-cladd-popover animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '40ms' }} contentClassName="flex flex-col divide-y divide-cladd-outline">
         <Row label="Theme">
           <ToggleGroup
             size="sm"
@@ -65,7 +65,7 @@ export function SettingsScreen({ settings, onChange }: SettingsScreenProps) {
         </Row>
       </Surface>
 
-      <Surface className="rounded-cladd-popover" contentClassName="flex flex-col divide-y divide-cladd-outline">
+      <Surface className="rounded-cladd-popover animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '80ms' }} contentClassName="flex flex-col divide-y divide-cladd-outline">
         <Row label="Sound" hint="Beeps for the last 3 seconds and phase changes">
           <Switch checked={settings.sound} onChange={(sound) => onChange({ sound })} />
         </Row>

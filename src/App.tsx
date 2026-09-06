@@ -34,8 +34,11 @@ export default function App() {
     <CladdProvider theme={settings.theme} accentColor={settings.accent}>
       <div className="app-container mx-auto flex h-full w-full max-w-[520px] flex-col bg-cladd-bg text-cladd-fg">
         {view.kind === 'run' && running ? (
-          <RunnerScreen key={running.id} workout={running} settings={settings} onFinish={addHistory} onExit={backToTabs} />
+          <div className="h-full animate-fade-up motion-reduce:animate-none">
+            <RunnerScreen key={running.id} workout={running} settings={settings} onFinish={addHistory} onExit={backToTabs} />
+          </div>
         ) : view.kind === 'edit' ? (
+          <div className="h-full animate-fade-up motion-reduce:animate-none">
           <WorkoutEditorScreen
             key={view.workout.id}
             initial={view.workout}
@@ -50,6 +53,7 @@ export default function App() {
             }}
             onBack={backToTabs}
           />
+          </div>
         ) : (
           <Tabs value={tab} onValueChange={setTab}>
             <main className="flex-1 overflow-y-auto px-4 pt-safe-5 pb-6">

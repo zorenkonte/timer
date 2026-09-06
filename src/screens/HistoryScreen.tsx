@@ -2,6 +2,7 @@ import { Button, Chip, List, ListItem, Surface, useDialog } from '@cladd-ui/reac
 import type { HistoryEntry } from '../types';
 import { formatDate, formatDuration } from '../lib/format';
 import { HistoryIcon, TrashIcon } from '../components/icons';
+import { CalendarHeatmap } from '../components/CalendarHeatmap';
 
 interface HistoryScreenProps {
   history: HistoryEntry[];
@@ -22,7 +23,7 @@ export function HistoryScreen({ history, onClear }: HistoryScreenProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-3">
+      <header className="flex items-center justify-between gap-3 animate-fade-up motion-reduce:animate-none">
         <h1 className="text-2xl font-semibold tracking-tight">History</h1>
         {history.length > 0 && (
           <Button size="md" rounded variant="transparent" color="red" onClick={confirmClear}>
@@ -32,16 +33,18 @@ export function HistoryScreen({ history, onClear }: HistoryScreenProps) {
         )}
       </header>
 
+      <CalendarHeatmap history={history} />
+
       {history.length === 0 ? (
-        <Surface className="rounded-cladd-popover" contentClassName="flex flex-col items-center gap-3 p-6 text-center">
+        <Surface className="rounded-cladd-popover animate-fade-up motion-reduce:animate-none" style={{ animationDelay: '160ms' }} contentClassName="flex flex-col items-center gap-3 p-6 text-center">
           <HistoryIcon className="size-8 text-cladd-fg-softer" />
           <div className="text-cladd-md font-semibold">Nothing logged yet</div>
           <div className="text-cladd-sm text-cladd-fg-soft">Finished workouts show up here.</div>
         </Surface>
       ) : (
         <List className="flex flex-col gap-2">
-          {history.map((h) => (
-            <Surface key={h.id} className="rounded-cladd-popover" contentClassName="p-0">
+          {history.map((h, i) => (
+            <Surface key={h.id} className="rounded-cladd-popover animate-fade-up motion-reduce:animate-none" style={{ animationDelay: `${160 + Math.min(i, 8) * 40}ms` }} contentClassName="p-0">
               <ListItem className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <div className="truncate text-cladd-md font-semibold">{h.workoutName}</div>

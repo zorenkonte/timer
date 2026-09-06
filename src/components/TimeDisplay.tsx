@@ -5,11 +5,18 @@ interface TimeDisplayProps {
   className?: string;
 }
 
-/** Big MM:SS readout. Cladd's type scale tops out at 16px, so this uses raw Tailwind sizes. */
+/**
+ * Big MM:SS readout. Cladd's type scale tops out at 16px, so this uses raw Tailwind sizes.
+ * Keyed on the displayed text so the digits nudge on every second.
+ */
 export function TimeDisplay({ ms, className = '' }: TimeDisplayProps) {
+  const text = formatClock(ms);
   return (
-    <div className={`text-7xl leading-none font-semibold tracking-tight tabular-nums text-cladd-fg ${className}`}>
-      {formatClock(ms)}
+    <div
+      key={text}
+      className={`text-7xl leading-none font-semibold tracking-tight tabular-nums text-cladd-fg animate-tick motion-reduce:animate-none ${className}`}
+    >
+      {text}
     </div>
   );
 }
