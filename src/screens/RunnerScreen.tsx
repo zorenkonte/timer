@@ -189,7 +189,6 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
   const phaseLabel = step?.kind === 'rest' ? 'Rest' : step?.kind === 'prep' ? 'Get ready' : 'Work';
   const timed = step?.kind !== 'work' || exercise?.mode === 'time';
   const ringProgress = timed && countdown.totalMs > 0 ? countdown.remainingMs / countdown.totalMs : 1;
-  const overall = setsTotal > 0 ? setsDone / setsTotal : 0;
 
   if (finished) {
     const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
@@ -225,25 +224,10 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
         <Button square size="lg" variant="transparent" outline={false} onClick={endEarly} aria-label="End workout">
           <ArrowLeftIcon className="size-5" />
         </Button>
-        <div className="min-w-0 flex-1 text-center">
-          <div className="truncate text-cladd-sm font-semibold">{workout.name}</div>
-          <div className="text-cladd-xs text-cladd-fg-soft tabular-nums">
-            {setsDone} / {setsTotal} sets
-          </div>
-        </div>
+        <div className="min-w-0 flex-1 truncate text-center text-cladd-sm font-semibold">{workout.name}</div>
         <div className="size-10" />
       </header>
 
-      <div className={`cladd-color-${settings.accent} mt-2 h-1 overflow-hidden rounded-full bg-cladd-surface-cut`}>
-        <div
-          className="h-full rounded-full transition-[width] duration-500 ease-out animate-shimmer motion-reduce:animate-none"
-          style={{
-            width: `${overall * 100}%`,
-            backgroundImage: 'linear-gradient(90deg, var(--cladd-theme), color-mix(in oklab, var(--cladd-theme) 55%, white), var(--cladd-theme))',
-            backgroundSize: '200% 100%',
-          }}
-        />
-      </div>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-5 py-4">
         <Chip key={phaseLabel} size="md" rounded color={phaseColor} variant="gradient-fill" className="uppercase tracking-wider animate-pop motion-reduce:animate-none">
