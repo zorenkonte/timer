@@ -78,7 +78,7 @@ export function SettingsScreen({ settings, onChange }: SettingsScreenProps) {
       </Surface>
 
       <p className="px-1 text-cladd-xs text-cladd-fg-softer">
-        Workouts and history are stored in this browser only. Built with the Cladd UI kit.
+        Workouts and history are stored in this browser only.
       </p>
     </div>
   );

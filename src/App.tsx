@@ -19,7 +19,7 @@ export default function App() {
   const [view, setView] = useState<View>({ kind: 'tabs' });
   const [tab, setTab] = useState('workouts');
 
-  // Cladd's light theme is a class on <html>; dark is the bare default.
+  // The light theme is a class on <html>; dark is the bare default.
   useEffect(() => {
     document.documentElement.classList.toggle('light', settings.theme === 'light');
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', settings.theme === 'light' ? '#f4f4f5' : '#101010');

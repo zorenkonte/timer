@@ -10,8 +10,8 @@ interface ProgressRingProps {
 }
 
 /**
- * Cladd ships no progress indicator, so this is a small SVG ring that borrows
- * the kit's tokens: the arc uses the raw accent hex (`--cladd-theme`) of the nearest `cladd-color-*` region and the
+ * The UI kit ships no progress indicator, so this is a small SVG ring that borrows
+ * its tokens: the arc uses the raw accent hex (`--cladd-theme`) of the nearest `cladd-color-*` region and the
  * track uses the outline color, so it tracks theme and accent changes for free.
  */
 export function ProgressRing({ progress, size = 264, stroke = 14, children, className = '' }: ProgressRingProps) {
