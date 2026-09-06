@@ -263,7 +263,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
         </div>
 
         <Surface variant="transparent" color={phaseColor} wrapContent={false}>
-          <ProgressRing progress={ringProgress} pulsing={countdown.running && secLeft <= 3 && secLeft >= 1}>
+          <ProgressRing progress={ringProgress}>
             {timed ? (
               <>
                 <TimeDisplay ms={countdown.remainingMs} />
