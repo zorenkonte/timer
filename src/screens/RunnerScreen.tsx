@@ -234,7 +234,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
           {phaseLabel}
         </Chip>
 
-        <div key={stepIdx} className="text-center animate-fade-up motion-reduce:animate-none">
+        <div key={`title-${stepIdx}`} className="text-center animate-fade-up motion-reduce:animate-none">
           <h1 className="text-2xl font-semibold tracking-tight">{step?.kind === 'prep' ? workout.exercises[0]?.name : exercise?.name}</h1>
           {step && step.kind !== 'prep' && exercise && (
             <p className="mt-1 text-cladd-md text-cladd-fg-soft">
@@ -255,7 +255,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
               </>
             ) : (
               <>
-                <div key={stepIdx} className="text-7xl leading-none font-semibold tracking-tight tabular-nums animate-pop motion-reduce:animate-none">{exercise?.reps}</div>
+                <div key={`reps-${stepIdx}`} className="text-7xl leading-none font-semibold tracking-tight tabular-nums animate-pop motion-reduce:animate-none">{exercise?.reps}</div>
                 <div className="mt-2 text-cladd-md text-cladd-fg-soft">reps</div>
               </>
             )}
@@ -264,7 +264,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
 
         {!timed && (
           <Button
-            key={stepIdx}
+            key={`done-${stepIdx}`}
             size="2xl"
             rounded
             variant="gradient-fill"
