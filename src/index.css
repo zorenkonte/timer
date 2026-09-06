@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import '@cladd-ui/react/css';
+@source "../node_modules/@cladd-ui/react";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-cladd-bg);
+  color: var(--color-cladd-fg);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
