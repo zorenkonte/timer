@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Button, Input, NumberField, SectionTitle, useDialog } from '@cladd-ui/react';
+import { Button, Input, NumberField, SectionTitle, useDialog, useToast } from '@cladd-ui/react';
 import type { Exercise, Workout } from '../types';
 import { newExercise } from '../store/sampleWorkouts';
 import { ExerciseEditorCard } from '../components/ExerciseEditorCard';
-import { ArrowLeftIcon, PlusIcon, TrashIcon } from '../components/icons';
+import { ArrowLeftIcon, CopyIcon, PlusIcon, TrashIcon } from '../components/icons';
+import { workoutToJson } from '../lib/workoutJson';
+import { copyText } from '../lib/clipboard';
 
 interface WorkoutEditorScreenProps {
   initial: Workout;
@@ -16,6 +18,16 @@ interface WorkoutEditorScreenProps {
 export function WorkoutEditorScreen({ initial, isNew, onSave, onDelete, onBack }: WorkoutEditorScreenProps) {
   const [draft, setDraft] = useState<Workout>(initial);
   const dialog = useDialog();
+  const toast = useToast();
+
+  const copyJson = async () => {
+    const ok = await copyText(workoutToJson(draft));
+    toast(
+      ok
+        ? { title: 'Workout copied as JSON', text: 'Share it with an AI or paste it back via Import.', color: 'green' }
+        : { title: 'Could not copy', text: 'Your browser blocked clipboard access.', color: 'red' },
+    );
+  };
 
   const updateExercise = (id: string, next: Exercise) =>
     setDraft((d) => ({ ...d, exercises: d.exercises.map((e) => (e.id === id ? next : e)) }));
@@ -113,12 +125,20 @@ export function WorkoutEditorScreen({ initial, isNew, onSave, onDelete, onBack }
             </div>
           </section>
 
-          {!isNew && (
-            <Button size="lg" rounded color="red" variant="transparent" onClick={confirmDelete}>
-              <TrashIcon className="size-4" />
-              Delete workout
-            </Button>
-          )}
+          <div className="flex flex-col gap-2">
+            {draft.exercises.length > 0 && (
+              <Button size="lg" rounded variant="transparent" onClick={copyJson}>
+                <CopyIcon className="size-4" />
+                Copy as JSON
+              </Button>
+            )}
+            {!isNew && (
+              <Button size="lg" rounded color="red" variant="transparent" onClick={confirmDelete}>
+                <TrashIcon className="size-4" />
+                Delete workout
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

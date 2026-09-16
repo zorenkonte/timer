@@ -1,17 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
-import { CladdProvider, Tab, TabPanel, Tabs, TabsList } from '@cladd-ui/react';
+import { CladdProvider, Tab, TabPanel, Tabs, TabsList, useToast } from '@cladd-ui/react';
 import type { HistoryEntry, Workout } from './types';
 import { useWorkoutStore } from './store/useWorkoutStore';
 import { newWorkout } from './store/sampleWorkouts';
 import { unlockAudio } from './timer/sound';
 import { WorkoutsScreen } from './screens/WorkoutsScreen';
 import { WorkoutEditorScreen } from './screens/WorkoutEditorScreen';
+import { ImportWorkoutScreen } from './screens/ImportWorkoutScreen';
 import { RunnerScreen } from './screens/RunnerScreen';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { DumbbellIcon, HistoryIcon, SettingsIcon } from './components/icons';
 
-type View = { kind: 'tabs' } | { kind: 'edit'; workout: Workout; isNew: boolean } | { kind: 'run'; workoutId: string };
+type View =
+  | { kind: 'tabs' }
+  | { kind: 'edit'; workout: Workout; isNew: boolean }
+  | { kind: 'import' }
+  | { kind: 'run'; workoutId: string };
 
 export default function App() {
   const { state, dispatch } = useWorkoutStore();
@@ -32,10 +37,58 @@ export default function App() {
 
   return (
     <CladdProvider theme={settings.theme} accentColor={settings.accent}>
+      <Shell
+        state={state}
+        dispatch={dispatch}
+        view={view}
+        setView={setView}
+        tab={tab}
+        setTab={setTab}
+        running={running}
+        addHistory={addHistory}
+        backToTabs={backToTabs}
+      />
+    </CladdProvider>
+  );
+}
+
+interface ShellProps {
+  state: ReturnType<typeof useWorkoutStore>['state'];
+  dispatch: ReturnType<typeof useWorkoutStore>['dispatch'];
+  view: View;
+  setView: (view: View) => void;
+  tab: string;
+  setTab: (tab: string) => void;
+  running: Workout | undefined;
+  addHistory: (entry: HistoryEntry) => void;
+  backToTabs: () => void;
+}
+
+/** Lives under CladdProvider so it can use the toast portal. */
+function Shell({ state, dispatch, view, setView, tab, setTab, running, addHistory, backToTabs }: ShellProps) {
+  const { settings } = state;
+  const toast = useToast();
+
+  const importWorkouts = (workouts: Workout[]) => {
+    if (workouts.length === 1) {
+      // A single plan goes through the editor so the user can review before saving.
+      setView({ kind: 'edit', workout: workouts[0], isNew: true });
+      return;
+    }
+    workouts.forEach((workout) => dispatch({ type: 'upsertWorkout', workout }));
+    toast({ title: `${workouts.length} workouts added`, text: 'Tap any of them to review or edit.', color: 'green' });
+    backToTabs();
+  };
+
+  return (
       <div className="app-container mx-auto flex h-full w-full max-w-[520px] flex-col bg-cladd-bg text-cladd-fg">
         {view.kind === 'run' && running ? (
           <div className="h-full animate-fade-up motion-reduce:animate-none">
             <RunnerScreen key={running.id} workout={running} settings={settings} onFinish={addHistory} onExit={backToTabs} />
+          </div>
+        ) : view.kind === 'import' ? (
+          <div className="h-full animate-fade-up motion-reduce:animate-none">
+            <ImportWorkoutScreen workouts={state.workouts} onImport={importWorkouts} onBack={backToTabs} />
           </div>
         ) : view.kind === 'edit' ? (
           <div className="h-full animate-fade-up motion-reduce:animate-none">
@@ -70,6 +123,7 @@ export default function App() {
                     if (workout) setView({ kind: 'edit', workout, isNew: false });
                   }}
                   onNew={() => setView({ kind: 'edit', workout: newWorkout(), isNew: true })}
+                  onImport={() => setView({ kind: 'import' })}
                 />
               </TabPanel>
               <TabPanel value="history">
@@ -98,6 +152,5 @@ export default function App() {
           </Tabs>
         )}
       </div>
-    </CladdProvider>
   );
 }
