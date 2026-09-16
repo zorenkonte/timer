@@ -2,16 +2,7 @@ import { useEffect, useReducer } from 'react';
 import type { AppState, HistoryEntry, Settings, Workout } from '../types';
 import { sampleWorkouts } from './sampleWorkouts';
 
-const LIVE_BASE = '/timer/';
-
-// Pull request previews are served from the same origin as the live app
-// (zorenkonte.github.io) under /timer/pr-<number>/, so they would share its
-// localStorage. Key preview data by base path so a preview build can never
-// read or overwrite what the live app has saved.
-const STORAGE_KEY =
-  import.meta.env.BASE_URL === LIVE_BASE
-    ? 'home-workout-timer:v1'
-    : `home-workout-timer:v1@${import.meta.env.BASE_URL}`;
+const STORAGE_KEY = 'home-workout-timer:v1';
 
 export const defaultSettings: Settings = {
   theme: 'dark',

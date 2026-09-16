@@ -52,14 +52,19 @@ Pushes to the default branch deploy to GitHub Pages automatically.
 
 ## Pull request previews
 
-Every pull request from a branch in this repository gets a live preview at
-`https://zorenkonte.github.io/timer/pr-<number>/`, linked from a comment on the PR.
-The preview is rebuilt on every push and removed when the PR is closed.
+Pull requests get a live preview deployment on [Vercel](https://vercel.com), the same way Netlify or
+Vercel previews work on any repo: every push to a PR is built and deployed to its own URL, and the
+Vercel bot posts the link on the PR with a **Visit Preview** button and a deployment status check.
+Previews are updated on every push and expire when the PR is closed.
 
-Previews share the origin of the live app but keep their saved workouts, history and settings
-under a separate key, so testing a preview never touches the data in the live app.
+The build detects Vercel and serves the app from the site root instead of `/timer/`. Nothing else
+differs from the GitHub Pages build. Each preview has its own origin, so its saved workouts and
+history are separate from the live app.
 
-How it works: `pr-preview.yml` checks that the PR builds and then dispatches `deploy.yml` on `main`,
-which builds the live app plus every open PR (`vite build --base /timer/pr-<number>/`) into one
-GitHub Pages deployment. Pull requests from forks are not previewed, since their code would run
-with this repository's token.
+### One-time setup
+
+1. Sign in at [vercel.com](https://vercel.com) with GitHub and open **Add New… → Project**.
+2. Import `zorenkonte/timer`. Vercel reads `vercel.json`, so keep the detected settings and deploy.
+3. That's it. Vercel installs its GitHub app on the repo and starts previewing pull requests.
+
+The GitHub Pages deployment of `main` stays the live app.

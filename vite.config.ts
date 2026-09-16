@@ -2,11 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
-// Served from https://zorenkonte.github.io/timer/ on GitHub Pages.
-// Pull request previews are built with `vite build --base /timer/pr-<number>/`
-// and deployed next to the live app (see .github/workflows/deploy.yml).
-// BASE_PATH does the same for local builds.
-const base = process.env.BASE_PATH ?? '/timer/';
+// The live app is served from https://zorenkonte.github.io/timer/ on GitHub
+// Pages. Vercel builds every pull request as a preview deployment on its own
+// *.vercel.app domain, where the app lives at the root. BASE_PATH overrides
+// either for local builds.
+const base = process.env.BASE_PATH ?? (process.env.VERCEL ? '/' : '/timer/');
 
 export default defineConfig({
   base: base.endsWith('/') ? base : `${base}/`,
