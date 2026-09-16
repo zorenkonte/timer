@@ -1,32 +1,95 @@
 name: Deploy to GitHub Pages
 
+# Builds one Pages site containing the live app (from main) at /timer/ and a
+# preview of every open pull request from this repository at /timer/pr-<n>/.
+#
+# Runs on every push to main. Pull requests can't deploy to the github-pages
+# environment from their own ref, so pr-preview.yml dispatches this workflow
+# on main whenever a PR is opened, updated or closed. Closed PRs simply stop
+# being built, which removes their preview on the next deploy.
+
 on:
   push:
     branches:
       - main
-      - claude/home-workout-app-ui-21gwg3
   workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
+env:
+  SITE_URL: https://zorenkonte.github.io/timer
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      previews: ${{ steps.previews.outputs.previews }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - name: Build live app
+        run: npm run build
+
+      - name: Build pull request previews
+        id: previews
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # Only PRs from branches in this repository: their code runs in this
+          # job, and forks must not get that.
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 100 \
+            --json number,headRefOid,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository | not) | {number, sha: .headRefOid}]' > previews.json
+          echo "Open pull requests to preview:"
+          cat previews.json
+
+          for row in $(jq -c '.[]' previews.json); do
+            number=$(jq -r '.number' <<<"$row")
+            sha=$(jq -r '.sha' <<<"$row")
+            out="dist/pr-$number"
+            src="$RUNNER_TEMP/pr-$number"
+            echo "::group::PR #$number @ $sha"
+            git fetch --no-tags --depth 1 origin "pull/$number/head"
+            git worktree add --detach "$src" FETCH_HEAD
+            if (cd "$src" && npm ci --no-audit --no-fund && npm run build -- --base "/timer/pr-$number/"); then
+              mv "$src/dist" "$out"
+            else
+              echo "::warning title=PR #$number preview::Build failed at $sha; deploying a placeholder page instead."
+              mkdir -p "$out"
+              cat > "$out/index.html" <<HTML
+          <!doctype html>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Preview build failed</title>
+          <body style="font-family: system-ui, sans-serif; margin: 3rem auto; max-width: 32rem; padding: 0 1rem; line-height: 1.5">
+          <h1>Preview build failed</h1>
+          <p>Pull request #$number at commit <code>$sha</code> did not build.</p>
+          <p><a href="$RUN_URL">See the workflow run</a> for the error.</p>
+          </body>
+          HTML
+            fi
+            git worktree remove --force "$src"
+            echo "::endgroup::"
+          done
+
+          echo "previews=$(jq -c . previews.json)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
@@ -43,3 +106,44 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  comment:
+    name: Post preview links
+    needs: [build, deploy]
+    if: needs.build.outputs.previews != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update the preview comment on each pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEWS: ${{ needs.build.outputs.previews }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          marker='<!-- live-preview -->'
+          deployed_at=$(date -u +'%Y-%m-%d %H:%M UTC')
+          for row in $(jq -c '.[]' <<<"$PREVIEWS"); do
+            number=$(jq -r '.number' <<<"$row")
+            sha=$(jq -r '.sha' <<<"$row")
+            url="$SITE_URL/pr-$number/"
+            body=$(cat <<MD
+          $marker
+          ### 🔍 Live preview
+
+          **$url**
+
+          Built from ${sha:0:7} and deployed $deployed_at ([run]($RUN_URL)). The preview is rebuilt on every push to this PR and removed when it is closed.
+
+          It runs on the same origin as the live app but keeps its own saved workouts, history and settings, so trying things here does not touch your real data.
+          MD
+          )
+            existing=$(gh api "repos/$GITHUB_REPOSITORY/issues/$number/comments" --paginate \
+              --jq "[.[] | select(.body | startswith(\"$marker\"))][0].id // empty")
+            if [ -n "$existing" ]; then
+              gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$existing" -f body="$body" --silent
+              echo "Updated preview comment on #$number"
+            else
+              gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$number/comments" -f body="$body" --silent
+              echo "Posted preview comment on #$number"
+            fi
+          done

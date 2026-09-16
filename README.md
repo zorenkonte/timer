@@ -49,3 +49,17 @@ npm run dev
 ```
 
 Pushes to the default branch deploy to GitHub Pages automatically.
+
+## Pull request previews
+
+Every pull request from a branch in this repository gets a live preview at
+`https://zorenkonte.github.io/timer/pr-<number>/`, linked from a comment on the PR.
+The preview is rebuilt on every push and removed when the PR is closed.
+
+Previews share the origin of the live app but keep their saved workouts, history and settings
+under a separate key, so testing a preview never touches the data in the live app.
+
+How it works: `pr-preview.yml` checks that the PR builds and then dispatches `deploy.yml` on `main`,
+which builds the live app plus every open PR (`vite build --base /timer/pr-<number>/`) into one
+GitHub Pages deployment. Pull requests from forks are not previewed, since their code would run
+with this repository's token.
