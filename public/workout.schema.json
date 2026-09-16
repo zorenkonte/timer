@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zorenkonte.github.io/timer/workout.schema.json",
+  "title": "Home Workout Timer import",
+  "description": "A workout plan that can be pasted into Home Workout Timer (https://zorenkonte.github.io/timer/) via Workouts -> Import. Either one workout, an array of workouts, or an object with a \"workouts\" array.",
+  "oneOf": [
+    { "$ref": "#/$defs/workout" },
+    { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/workout" } },
+    {
+      "type": "object",
+      "required": ["workouts"],
+      "properties": { "workouts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/workout" } } }
+    }
+  ],
+  "$defs": {
+    "workout": {
+      "type": "object",
+      "required": ["name", "exercises"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "Short workout name." },
+        "restBetweenExercisesSec": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 900,
+          "default": 90,
+          "description": "Rest after the last set of an exercise before the next exercise starts."
+        },
+        "exercises": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/exercise" } }
+      }
+    },
+    "exercise": {
+      "type": "object",
+      "required": ["name", "mode", "sets"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "Short exercise name that fits on a phone screen." },
+        "mode": {
+          "type": "string",
+          "enum": ["reps", "time"],
+          "description": "\"reps\": counted repetitions, uses reps. \"time\": timed work or hold, uses durationSec."
+        },
+        "sets": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "reps": { "type": "integer", "minimum": 1, "maximum": 500, "description": "Target reps per set (mode = reps)." },
+        "durationSec": { "type": "integer", "minimum": 5, "maximum": 3600, "description": "Work seconds per set (mode = time)." },
+        "weightKg": { "type": "number", "minimum": 0, "maximum": 500, "default": 0, "description": "Load in kg; 0 = bodyweight." },
+        "restSec": { "type": "integer", "minimum": 0, "maximum": 900, "default": 60, "description": "Rest between sets of this exercise." }
+      },
+      "allOf": [
+        { "if": { "properties": { "mode": { "const": "reps" } } }, "then": { "required": ["reps"] } },
+        { "if": { "properties": { "mode": { "const": "time" } } }, "then": { "required": ["durationSec"] } }
+      ]
+    }
+  }
+}

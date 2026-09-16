@@ -1,0 +1,74 @@
+# Home Workout Timer
+
+> A phone-friendly, browser-only timer for home workouts (push-ups, dumbbells, planks). Users build workouts from exercises with sets, reps or timed work, optional weight and rest, then follow a guided runner. There is no server or account: everything lives in the browser's localStorage. An AI can help a user by producing a workout plan as JSON, which the user pastes into the app via Workouts -> Import.
+
+Live app: https://zorenkonte.github.io/timer/
+Source: https://github.com/zorenkonte/timer
+JSON Schema: https://zorenkonte.github.io/timer/workout.schema.json
+
+## How an AI should help
+
+When asked to plan a workout for this app, reply with JSON only, matching the format below. Do not wrap it in markdown fences or add commentary unless asked; the app tolerates fences and surrounding prose, but plain JSON is safest. The user pastes your reply into Workouts -> Import, reviews it in the editor, and saves.
+
+Return one workout object for a single session, or a JSON array of workout objects for several sessions (for example a weekly split).
+
+## Workout JSON format
+
+```json
+{
+  "name": "Upper Body",
+  "restBetweenExercisesSec": 90,
+  "exercises": [
+    { "name": "Push-ups", "mode": "reps", "sets": 3, "reps": 12, "weightKg": 0, "restSec": 60 },
+    { "name": "Dumbbell Press", "mode": "reps", "sets": 3, "reps": 10, "weightKg": 12, "restSec": 90 },
+    { "name": "Plank", "mode": "time", "sets": 3, "durationSec": 45, "weightKg": 0, "restSec": 45 }
+  ]
+}
+```
+
+### Workout fields
+
+| Field | Type | Required | Meaning |
+| --- | --- | --- | --- |
+| name | string | yes | Short workout name shown in the list. |
+| exercises | array | yes | Ordered list of exercises, at least one. |
+| restBetweenExercisesSec | integer 0-900 | no (default 90) | Rest after the last set of an exercise, before the next exercise starts. |
+
+### Exercise fields
+
+| Field | Type | Required | Meaning |
+| --- | --- | --- | --- |
+| name | string | yes | Short exercise name; it must fit on a phone screen. |
+| mode | "reps" or "time" | yes | "reps": the user counts reps and taps done. "time": the app runs a countdown for the set. |
+| sets | integer 1-20 | yes | Number of sets. |
+| reps | integer 1-500 | when mode is "reps" | Target reps per set. |
+| durationSec | integer 5-3600 | when mode is "time" | Work seconds per set. |
+| weightKg | number 0-500 | no (default 0) | Load in kilograms. 0 means bodyweight. |
+| restSec | integer 0-900 | no (default 60) | Rest between sets of this exercise. |
+
+### Rules of thumb
+
+- Order exercises as they should be performed; the app runs them top to bottom.
+- Use "time" for holds and cardio intervals (plank, mountain climbers, wall sit); use "reps" for everything counted.
+- Values outside the limits are clamped on import, and missing optional fields get the defaults above.
+- Do not include "id" fields; the app generates them.
+- Keep names concise: "Goblet Squat", not "Goblet Squat (dumbbell held at chest)". Put form cues in your chat reply, not in the JSON.
+
+### Several workouts
+
+```json
+[
+  { "name": "Day 1 - Push", "restBetweenExercisesSec": 90, "exercises": [ ... ] },
+  { "name": "Day 2 - Pull", "restBetweenExercisesSec": 90, "exercises": [ ... ] }
+]
+```
+
+`{ "workouts": [ ... ] }` is accepted too.
+
+## Runner behaviour (for realistic plans)
+
+- Optional get-ready countdown before the first set (default 5 s).
+- Reps sets wait for the user to tap done; timed sets count down automatically.
+- Rest between sets uses the exercise's restSec; rest after an exercise uses restBetweenExercisesSec.
+- Rough duration estimate the app shows: about 3 s per rep, plus timed work and all rests.
+- Finished sessions are logged to History with sets done vs total.
