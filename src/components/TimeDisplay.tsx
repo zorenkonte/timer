@@ -1,29 +1,37 @@
 import { formatClock } from '../lib/format';
+import { RollingDigit } from './RollingDigit';
 
 interface TimeDisplayProps {
   ms: number;
-  /** Sweeps the shimmer while true; freezes it (e.g. paused) while false. */
-  running?: boolean;
   className?: string;
 }
 
 /**
- * Big MM:SS readout with a Claude Code-style "shimmer": a band of light sweeping across the
- * digits while the clock runs, instead of nudging the digits on every second.
+ * Big M:SS readout. Each digit is an odometer reel (see RollingDigit) that rolls
+ * to its next value, like daisyUI's countdown component.
  * The UI kit's type scale tops out at 16px, so this uses raw Tailwind sizes.
  */
-export function TimeDisplay({ ms, running = true, className = '' }: TimeDisplayProps) {
+export function TimeDisplay({ ms, className = '' }: TimeDisplayProps) {
+  const text = formatClock(ms);
+  const chars = text.split('');
   return (
     <div
-      className={`text-7xl leading-none font-semibold tracking-tight tabular-nums text-cladd-fg bg-clip-text motion-safe:text-transparent motion-safe:animate-shimmer ${className}`}
-      style={{
-        backgroundImage:
-          'linear-gradient(100deg, var(--color-cladd-fg) 0%, var(--color-cladd-fg) 40%, var(--color-cladd-fg-soft) 50%, var(--color-cladd-fg) 60%, var(--color-cladd-fg) 100%)',
-        backgroundSize: '200% 100%',
-        animationPlayState: running ? 'running' : 'paused',
-      }}
+      role="timer"
+      aria-label={text}
+      className={`inline-flex text-7xl leading-none font-semibold tracking-tight tabular-nums text-cladd-fg ${className}`}
     >
-      {formatClock(ms)}
+      {chars.map((ch, i) => {
+        // Key from the right so the seconds reels keep their identity when the
+        // minutes lose a digit (10:00 -> 9:59).
+        const key = chars.length - i;
+        return /\d/.test(ch) ? (
+          <RollingDigit key={key} digit={Number(ch)} />
+        ) : (
+          <span key={key} aria-hidden>
+            {ch}
+          </span>
+        );
+      })}
     </div>
   );
 }

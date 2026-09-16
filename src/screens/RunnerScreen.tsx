@@ -250,7 +250,7 @@ export function RunnerScreen({ workout, settings, onFinish, onExit }: RunnerScre
           <ProgressRing progress={ringProgress}>
             {timed ? (
               <>
-                <TimeDisplay ms={countdown.remainingMs} running={countdown.running} />
+                <TimeDisplay ms={countdown.remainingMs} />
                 {!countdown.running && countdown.active && <div className="mt-2 text-cladd-sm font-medium text-cladd-fg-soft uppercase animate-pulse">Paused</div>}
               </>
             ) : (
