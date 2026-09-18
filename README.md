@@ -49,3 +49,26 @@ npm run dev
 ```
 
 Pushes to the default branch deploy to GitHub Pages automatically.
+
+## Pull request previews
+
+Pull requests get a live preview deployment on [Vercel](https://vercel.com), the same way Netlify or
+Vercel previews work on any repo: every push to a PR is built and deployed to its own URL, and the
+Vercel bot posts the link on the PR with a **Visit Preview** button and a deployment status check.
+Previews are updated on every push and expire when the PR is closed.
+
+The build detects Vercel and serves the app from the site root instead of `/timer/`. Nothing else
+differs from the GitHub Pages build. Each preview has its own origin, so its saved workouts and
+history are separate from the live app.
+
+### One-time setup
+
+1. Sign in at [vercel.com](https://vercel.com) with GitHub and open **Add New… → Project**.
+2. Import `zorenkonte/timer`. Vercel reads `vercel.json`, so keep the detected settings and deploy.
+3. Vercel installs its GitHub app on the repo and starts previewing pull requests. A PR that was
+   already open gets its first preview on its next push.
+4. New Vercel projects put preview URLs behind a Vercel login. To let anyone with the link open a
+   preview, go to the project's **Settings → Deployment Protection** and set **Vercel Authentication**
+   to **Disabled**.
+
+The GitHub Pages deployment of `main` stays the live app.
