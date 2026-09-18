@@ -69,7 +69,8 @@ and history are separate from the live app.
 1. In the [Cloudflare dashboard](https://dash.cloudflare.com) open **Workers & Pages → Create →
    Pages → Connect to Git** and pick `zorenkonte/timer`.
 2. Build settings: framework preset **Vite**, build command `npm run build`, output directory
-   `dist`. Node 22 is picked up from `.node-version`. Save and deploy.
+   `dist`. Node 22 is picked up from `.node-version`; if the branch being built predates that file,
+   set an environment variable `NODE_VERSION` = `22` in the same form. Save and deploy.
 3. Cloudflare installs its GitHub app on the repo and previews every pull request from then on. A
    PR that was already open gets its first preview on its next push.
 4. Optional, for a custom domain: in the Pages project open **Custom domains** and add for example
