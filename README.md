@@ -57,8 +57,9 @@ Pushes to the default branch deploy to GitHub Pages automatically.
 
 Pull requests get a live preview on [Cloudflare Workers](https://workers.cloudflare.com): Workers
 Builds compiles every push, deploys `main` to production and uploads every other branch as a preview
-version with its own `*.workers.dev` URL. Cloudflare posts the preview link and a **Workers Builds**
-check on the PR, and refreshes it on every push.
+version with its own `*.workers.dev` URL. Cloudflare adds a **Workers Builds** check to the PR; the
+`preview-comment.yml` workflow reads the preview URL from that check and keeps a comment with the
+link at the top of the PR, refreshed on every push.
 
 The build detects Cloudflare and serves the app from the site root instead of `/timer/`. Nothing
 else differs from the GitHub Pages build. `wrangler.jsonc` tells Cloudflare to serve the `dist`
