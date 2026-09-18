@@ -65,6 +65,10 @@ history are separate from the live app.
 
 1. Sign in at [vercel.com](https://vercel.com) with GitHub and open **Add New… → Project**.
 2. Import `zorenkonte/timer`. Vercel reads `vercel.json`, so keep the detected settings and deploy.
-3. That's it. Vercel installs its GitHub app on the repo and starts previewing pull requests.
+3. Vercel installs its GitHub app on the repo and starts previewing pull requests. A PR that was
+   already open gets its first preview on its next push.
+4. New Vercel projects put preview URLs behind a Vercel login. To let anyone with the link open a
+   preview, go to the project's **Settings → Deployment Protection** and set **Vercel Authentication**
+   to **Disabled**.
 
 The GitHub Pages deployment of `main` stays the live app.
