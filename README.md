@@ -52,23 +52,28 @@ Pushes to the default branch deploy to GitHub Pages automatically.
 
 ## Pull request previews
 
-Pull requests get a live preview deployment on [Vercel](https://vercel.com), the same way Netlify or
-Vercel previews work on any repo: every push to a PR is built and deployed to its own URL, and the
-Vercel bot posts the link on the PR with a **Visit Preview** button and a deployment status check.
-Previews are updated on every push and expire when the PR is closed.
+Pull requests get a live preview deployment on [Cloudflare Pages](https://pages.cloudflare.com):
+every push to a PR is built and deployed to its own `*.pages.dev` URL, and the Cloudflare Pages
+bot posts the link on the PR with a deployment status check. Previews update on every push, and
+each branch also gets a stable alias like `<branch>.timer.pages.dev`.
 
-The build detects Vercel and serves the app from the site root instead of `/timer/`. Nothing else
-differs from the GitHub Pages build. Each preview has its own origin, so its saved workouts and
-history are separate from the live app.
+The build detects Cloudflare and serves the app from the site root instead of `/timer/`. Nothing
+else differs from the GitHub Pages build. Each preview has its own origin, so its saved workouts
+and history are separate from the live app.
 
 ### One-time setup
 
-1. Sign in at [vercel.com](https://vercel.com) with GitHub and open **Add New… → Project**.
-2. Import `zorenkonte/timer`. Vercel reads `vercel.json`, so keep the detected settings and deploy.
-3. Vercel installs its GitHub app on the repo and starts previewing pull requests. A PR that was
-   already open gets its first preview on its next push.
-4. New Vercel projects put preview URLs behind a Vercel login. To let anyone with the link open a
-   preview, go to the project's **Settings → Deployment Protection** and set **Vercel Authentication**
-   to **Disabled**.
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com) open **Workers & Pages → Create →
+   Pages → Connect to Git** and pick `zorenkonte/timer`.
+2. Build settings: framework preset **Vite**, build command `npm run build`, output directory
+   `dist`. Node 22 is picked up from `.node-version`. Save and deploy.
+3. Cloudflare installs its GitHub app on the repo and previews every pull request from then on. A
+   PR that was already open gets its first preview on its next push.
+4. Optional, for a custom domain: in the Pages project open **Custom domains** and add for example
+   `timer.yourdomain.com`. Since the domain is on Cloudflare the DNS record is created for you, and
+   the production deployment of `main` is served there.
+
+Preview URLs are public by default. To restrict them, enable **Access policy** under the project's
+**Settings → General**.
 
 The GitHub Pages deployment of `main` stays the live app.
