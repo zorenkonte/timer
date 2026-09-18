@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers config: the built Vite app is served as static assets.
+  // Workers Builds runs `npm run build` and then `wrangler deploy` (production,
+  // main) or `wrangler versions upload` (every other branch, giving a preview
+  // URL that Cloudflare comments on the pull request).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "timer",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
