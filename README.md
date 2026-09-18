@@ -48,27 +48,37 @@ npm install
 npm run dev
 ```
 
+`npm run build` produces the GitHub Pages build under `/timer/`. To reproduce the Cloudflare build,
+which serves from the site root, run `BASE_PATH=/ npm run build`.
+
 Pushes to the default branch deploy to GitHub Pages automatically.
 
 ## Pull request previews
 
-Pull requests get a live preview deployment on [Vercel](https://vercel.com), the same way Netlify or
-Vercel previews work on any repo: every push to a PR is built and deployed to its own URL, and the
-Vercel bot posts the link on the PR with a **Visit Preview** button and a deployment status check.
-Previews are updated on every push and expire when the PR is closed.
+Pull requests get a live preview on [Cloudflare Workers](https://workers.cloudflare.com): Workers
+Builds compiles every push, deploys `main` to production and uploads every other branch as a preview
+version with its own `*.workers.dev` URL. Cloudflare adds a **Workers Builds** check to the PR; the
+`preview-comment.yml` workflow reads the preview URL from that check and keeps a comment with the
+link at the top of the PR, refreshed on every push.
 
-The build detects Vercel and serves the app from the site root instead of `/timer/`. Nothing else
-differs from the GitHub Pages build. Each preview has its own origin, so its saved workouts and
-history are separate from the live app.
+The build detects Cloudflare and serves the app from the site root instead of `/timer/`. Nothing
+else differs from the GitHub Pages build. `wrangler.jsonc` tells Cloudflare to serve the `dist`
+folder as static assets; there is no Worker code. Each preview has its own origin, so its saved
+workouts and history are separate from the live app.
 
 ### One-time setup
 
-1. Sign in at [vercel.com](https://vercel.com) with GitHub and open **Add New… → Project**.
-2. Import `zorenkonte/timer`. Vercel reads `vercel.json`, so keep the detected settings and deploy.
-3. Vercel installs its GitHub app on the repo and starts previewing pull requests. A PR that was
-   already open gets its first preview on its next push.
-4. New Vercel projects put preview URLs behind a Vercel login. To let anyone with the link open a
-   preview, go to the project's **Settings → Deployment Protection** and set **Vercel Authentication**
-   to **Disabled**.
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com) open **Workers & Pages → Create →
+   Workers → Import a repository** and pick `zorenkonte/timer`.
+2. Build settings: build command `npm run build`, deploy command `npx wrangler deploy`, root
+   directory `/`. Node 22 is picked up from `.node-version`; if the branch being built predates that
+   file, set an environment variable `NODE_VERSION` = `22` in the same form. Save and deploy.
+3. Cloudflare installs its GitHub app on the repo and previews every pull request from then on. A
+   PR that was already open gets its first preview on its next push.
+4. Optional, for a custom domain: in the Worker open **Settings → Domains & Routes → Add → Custom
+   domain** and enter for example `timer.yourdomain.com`. Since the domain is on Cloudflare the DNS
+   record is created for you, and production is served there.
+
+Preview URLs are public by default. To restrict them, put the Worker behind Cloudflare Access.
 
 The GitHub Pages deployment of `main` stays the live app.
