@@ -48,6 +48,9 @@ npm install
 npm run dev
 ```
 
+`npm run build` produces the GitHub Pages build under `/timer/`. To reproduce the Cloudflare build,
+which serves from the site root, run `BASE_PATH=/ npm run build`.
+
 Pushes to the default branch deploy to GitHub Pages automatically.
 
 ## Pull request previews
